@@ -102,7 +102,12 @@ class MyWindow(Gtk.Window):
         
 
 def md_to_html(text):
-    return markdown.markdown(text)
+    try:
+        return markdown.markdown(unicode(text, "UTF-8"))
+    except UnicodeDecodeError, e:
+        print "Error! - UnicodeDecodeError"
+        print str(e)
+        return text
 
 if __name__=="__main__":
     w = MyWindow()
