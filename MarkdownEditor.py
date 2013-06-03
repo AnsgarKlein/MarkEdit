@@ -8,6 +8,14 @@ except:
     print "\t\t\t\tERROR"
     sys.exit(1)
 
+print "Trying to import Gdk from gi.repository ...",
+try:
+    from gi.repository import Gdk
+    print "\t\tDONE"
+except:
+    print "\t\tERROR"
+    sys.exit(1)
+
 print "Trying to import Gtk from gi.repository ...",
 try:
     from gi.repository import Gtk
@@ -36,20 +44,136 @@ except:
     sys.exit(1)
 
 WITH_SOURCEVIEW = True
+N_OPEN_WINDOWS = 0
 
 class MyWindow(Gtk.Window):
     def __init__(self):
+        global N_OPEN_WINDOWS
+        N_OPEN_WINDOWS = N_OPEN_WINDOWS+1
+        
+        self.is_fullscreen = False
+        
         self.build_gui()
+        self.show_all()
         
     def build_gui(self):
         Gtk.Window.__init__(self, title="Markdown")
-        self.connect("delete-event", Gtk.main_quit)
+        self.connect("delete-event", lambda a, b: self.exit_window())
+        self.connect("window-state-event", self.on_window_state_change)
         self.set_default_size(900,750)
         
+        #Set application icon
+        try:
+            self.set_icon(Gtk.IconTheme.get_default().load_icon("text-editor", 256, 0))
+        except:
+            try:
+                self.set_icon(Gtk.IconTheme.get_default().load_icon("application-x-executable", 256, 0))
+            except:
+                pass
+        
+        #create main box
+        self.main_box = Gtk.Box()
+        self.main_box.set_orientation(Gtk.Orientation.VERTICAL)
+        self.add(self.main_box)
+        
+        #Create menu bar
+        
+        # --- "File" item
+        self.menu1 = Gtk.Menu()
+        self.menuitem1_1 = Gtk.MenuItem.new_with_label("New")
+        self.menuitem1_1.connect("activate", lambda a: self.open_new_window())
+        self.menu1.add(self.menuitem1_1)
+        self.menuitem1_2 = Gtk.MenuItem.new_with_label("Open")
+        self.menu1.add(self.menuitem1_2)
+        self.menuitem1_3 = Gtk.MenuItem.new_with_label("Save")
+        self.menu1.add(self.menuitem1_3)
+        self.menuitem1_4 = Gtk.MenuItem.new_with_label("Save As")
+        self.menu1.add(self.menuitem1_4)
+        self.menuitem1_5 = Gtk.MenuItem.new_with_label("Quit")
+        self.menuitem1_5.connect("activate", lambda a: self.exit_window())
+        self.menu1.add(self.menuitem1_5)
+        
+        self.menuitem1 = Gtk.MenuItem.new_with_label("File")
+        self.menuitem1.set_submenu(self.menu1)
+        
+        # --- "Edit" item
+        self.menu2 = Gtk.Menu()
+        self.menuitem2_1 = Gtk.MenuItem.new_with_label("Undo")
+        self.menu2.add(self.menuitem2_1)
+        self.menuitem2_2 = Gtk.MenuItem.new_with_label("Redo")
+        self.menu2.add(self.menuitem2_2)
+        self.menuitem2_3 = Gtk.MenuItem.new_with_label("Preferences")
+        self.menu2.add(self.menuitem2_3)
+        
+        self.menuitem2 = Gtk.MenuItem.new_with_label("Edit")
+        self.menuitem2.set_submenu(self.menu2)
+        
+        # --- "Help" item
+        self.menu3 = Gtk.Menu()
+        self.menuitem3_1 = Gtk.MenuItem.new_with_label("Info")
+        self.menu3.add(self.menuitem3_1)
+        
+        self.menuitem3 = Gtk.MenuItem.new_with_label("Help")
+        self.menuitem3.set_submenu(self.menu3)
+        
+        self.menubar = Gtk.MenuBar()
+        self.menubar.add(self.menuitem1)
+        self.menubar.add(self.menuitem2)
+        self.menubar.add(self.menuitem3)
+        self.main_box.add(self.menubar)
+        
+        #Create toolbar
+        self.toolbar = Gtk.Toolbar()
+        self.toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
+        self.main_box.add(self.toolbar)
+        
+        self.new_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_NEW)
+        self.new_button.connect("clicked", lambda a: self.open_new_window())
+        self.toolbar.add(self.new_button)
+        
+        self.open_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_OPEN)
+        self.toolbar.add(self.open_button)
+        
+        self.save_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_SAVE)
+        self.toolbar.add(self.save_button)
+        
+        self.toolbar.add(Gtk.SeparatorToolItem())
+        
+        self.print_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_PRINT)
+        self.toolbar.add(self.print_button)
+        
+        self.toolbar.add(Gtk.SeparatorToolItem())
+        
+        self.undo_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_UNDO)
+        self.toolbar.add(self.undo_button)
+        
+        self.redo_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REDO)
+        self.toolbar.add(self.redo_button)
+        
+        self.toolbar.add(Gtk.SeparatorToolItem())
+        
+        self.cut_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_CUT)
+        self.toolbar.add(self.cut_button)
+        
+        self.copy_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_COPY)
+        self.toolbar.add(self.copy_button)
+        
+        self.paste_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_PASTE)
+        self.toolbar.add(self.paste_button)
+        
+        self.toolbar.add(Gtk.SeparatorToolItem())
+        
+        self.fullscreen_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_FULLSCREEN)
+        self.fullscreen_button.connect("clicked", lambda a: self.toggle_fullscreen())
+        self.toolbar.add(self.fullscreen_button)
+        
+        
+        #Create all three text views
         self.text_box = Gtk.Box()
         self.text_box.set_homogeneous(True)
-        self.add(self.text_box)
+        self.main_box.add(self.text_box)
         
+        #Create markdown text view
         if WITH_SOURCEVIEW:
             self.md_text_language = GtkSource.LanguageManager.get_default().get_language("markdown")
             self.md_text_buffer = GtkSource.Buffer.new_with_language(self.md_text_language)
@@ -59,15 +183,17 @@ class MyWindow(Gtk.Window):
         self.md_text.set_hexpand(True)
         self.md_text.set_vexpand(True)
         self.md_text.set_editable(True)
-        self.md_text.get_buffer().connect("changed", self.text_changed)
+        self.md_text.get_buffer().connect("changed", self.md_text_changed)
         self.md_text.set_wrap_mode(Gtk.WrapMode.WORD)
         self.md_text_scroll = Gtk.ScrolledWindow()
         self.md_text_scroll.add(self.md_text)
         self.text_box.pack_start(self.md_text_scroll, True, True, 0)
         
+        #Create Gtk.Notebook to switch between html text and rendered html
         self.html_switcher = Gtk.Notebook()
         self.text_box.pack_start(self.html_switcher, True, True, 0)
         
+        #Create html text view
         if WITH_SOURCEVIEW:
             self.html_text_language = GtkSource.LanguageManager.get_default().get_language("html")
             self.html_text_buffer = GtkSource.Buffer.new_with_language(self.html_text_language)
@@ -82,6 +208,7 @@ class MyWindow(Gtk.Window):
         self.html_text_scroll.add(self.html_text)
         self.html_switcher.append_page(self.html_text_scroll, Gtk.Label("Text"))
         
+        #Create rendered html view
         self.html_view = WebKit.WebView()
         self.html_view.set_hexpand(True)
         self.html_view.set_vexpand(True)
@@ -89,16 +216,40 @@ class MyWindow(Gtk.Window):
         self.html_view_scroll.add(self.html_view)
         self.html_switcher.append_page(self.html_view_scroll, Gtk.Label("View"))
         
-        self.html_switcher.set_current_page(0)
+        self.html_switcher.show_all()
+        self.html_switcher.set_current_page(1)
         
     
-    def text_changed(self, md_buffer):
+    def md_text_changed(self, md_buffer):
         md_text = md_buffer.get_text(md_buffer.get_start_iter(), md_buffer.get_end_iter(), False)
         
         html_text = md_to_html(md_text)
         
         self.html_text.get_buffer().set_text(html_text)
         self.html_view.load_html_string(html_text, "")
+    
+    def on_window_state_change(self, window, event):
+        if bool(Gdk.WindowState.FULLSCREEN & event.new_window_state):
+            self.is_fullscreen = True
+        else:
+            self.is_fullscreen = False
+    
+    def toggle_fullscreen(self):
+        if self.is_fullscreen:
+            self.unfullscreen()
+        else:
+            self.fullscreen()
+            pass
+    
+    def open_new_window(self):
+        MyWindow()
+    
+    def exit_window(self):
+        global N_OPEN_WINDOWS
+        N_OPEN_WINDOWS = N_OPEN_WINDOWS-1
+        
+        if N_OPEN_WINDOWS == 0:
+            Gtk.main_quit()
         
 
 def md_to_html(text):
@@ -110,6 +261,8 @@ def md_to_html(text):
         return text
 
 if __name__=="__main__":
-    w = MyWindow()
-    w.show_all()
+    MyWindow()
+    
+    import signal
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     Gtk.main()
