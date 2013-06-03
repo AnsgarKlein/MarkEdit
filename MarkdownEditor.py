@@ -5,7 +5,7 @@ try:
     import markdown
     print "\t\t\t\tDONE"
 except:
-    print "\tERROR"
+    print "\t\t\t\tERROR"
     sys.exit(1)
 
 print "Trying to import Gtk from gi.repository ...",
