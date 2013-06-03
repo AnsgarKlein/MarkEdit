@@ -16,6 +16,17 @@ except:
     print "\t\tERROR"
     sys.exit(1)
 
+print "Trying to import GtkSource from gi.repository ...",
+try:
+    from gi.repository import GtkSource
+    print "\tDONE"
+except:
+    print "\tERROR"
+    print "Starting without Gtk.SourceView, advanced features will not be available."
+    print "Install gtksourceview 3, its gir bindings and the language specific files for"
+    print "html and markdown to enable syntax highlighting."
+    WITH_SOURCEVIEW = False
+
 print "Trying to import WebKit from gi.repository ...",
 try:
     from gi.repository import WebKit
@@ -23,6 +34,8 @@ try:
 except:
     print "\t\tERROR"
     sys.exit(1)
+
+WITH_SOURCEVIEW = True
 
 class MyWindow(Gtk.Window):
     def __init__(self):
@@ -37,7 +50,12 @@ class MyWindow(Gtk.Window):
         self.text_box.set_homogeneous(True)
         self.add(self.text_box)
         
-        self.md_text = Gtk.TextView()
+        if WITH_SOURCEVIEW:
+            self.md_text_language = GtkSource.LanguageManager.get_default().get_language("markdown")
+            self.md_text_buffer = GtkSource.Buffer.new_with_language(self.md_text_language)
+            self.md_text = GtkSource.View.new_with_buffer(self.md_text_buffer)
+        else:
+            self.md_text = Gtk.TextView()
         self.md_text.set_hexpand(True)
         self.md_text.set_vexpand(True)
         self.md_text.set_editable(True)
@@ -50,7 +68,12 @@ class MyWindow(Gtk.Window):
         self.html_switcher = Gtk.Notebook()
         self.text_box.pack_start(self.html_switcher, True, True, 0)
         
-        self.html_text = Gtk.TextView()
+        if WITH_SOURCEVIEW:
+            self.html_text_language = GtkSource.LanguageManager.get_default().get_language("html")
+            self.html_text_buffer = GtkSource.Buffer.new_with_language(self.html_text_language)
+            self.html_text = GtkSource.View.new_with_buffer(self.html_text_buffer)
+        else:
+            self.html_text = Gtk.TextView()
         self.html_text.set_hexpand(True)
         self.html_text.set_vexpand(True)
         self.html_text.set_editable(False)
@@ -66,11 +89,11 @@ class MyWindow(Gtk.Window):
         self.html_view_scroll.add(self.html_view)
         self.html_switcher.append_page(self.html_view_scroll, Gtk.Label("View"))
         
+        self.html_switcher.set_current_page(0)
+        
     
     def text_changed(self, md_buffer):
-        md_text = md_buffer.get_text(md_buffer.get_start_iter(),
-                                     md_buffer.get_end_iter(),
-                                     False)
+        md_text = md_buffer.get_text(md_buffer.get_start_iter(), md_buffer.get_end_iter(), False)
         
         html_text = md_to_html(md_text)
         
