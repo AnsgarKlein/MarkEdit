@@ -67,8 +67,7 @@ class MyWindow(Gtk.Window):
         self.html_switcher.append_page(self.html_view_scroll, Gtk.Label("View"))
         
     
-    def text_changed(self, x):
-        md_buffer = self.md_text.get_buffer()
+    def text_changed(self, md_buffer):
         md_text = md_buffer.get_text(md_buffer.get_start_iter(),
                                      md_buffer.get_end_iter(),
                                      False)
