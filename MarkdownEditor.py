@@ -47,21 +47,24 @@ class MyWindow(Gtk.Window):
         self.md_text_scroll.add(self.md_text)
         self.text_box.pack_start(self.md_text_scroll, True, True, 0)
         
-        """self.html_text = Gtk.TextView()
+        self.html_switcher = Gtk.Notebook()
+        self.text_box.pack_start(self.html_switcher, True, True, 0)
+        
+        self.html_text = Gtk.TextView()
         self.html_text.set_hexpand(True)
         self.html_text.set_vexpand(True)
         self.html_text.set_editable(False)
         self.html_text.set_wrap_mode(Gtk.WrapMode.WORD)
         self.html_text_scroll = Gtk.ScrolledWindow()
         self.html_text_scroll.add(self.html_text)
-        self.text_box.pack_start(self.html_text_scroll, True, True, 0)"""
+        self.html_switcher.append_page(self.html_text_scroll, Gtk.Label("Text"))
         
         self.html_view = WebKit.WebView()
         self.html_view.set_hexpand(True)
         self.html_view.set_vexpand(True)
         self.html_view_scroll = Gtk.ScrolledWindow()
         self.html_view_scroll.add(self.html_view)
-        self.text_box.pack_start(self.html_view_scroll, True, True, 0)
+        self.html_switcher.append_page(self.html_view_scroll, Gtk.Label("View"))
         
     
     def text_changed(self, x):
@@ -72,6 +75,7 @@ class MyWindow(Gtk.Window):
         
         html_text = md_to_html(md_text)
         
+        self.html_text.get_buffer().set_text(html_text)
         self.html_view.load_html_string(html_text, "")
         
 
