@@ -78,27 +78,55 @@ class MyWindow(Gtk.Window):
         self.add(self.main_box)
         
         #Create menu bar
+        self.menu_accel = Gtk.AccelGroup()
+        self.add_accel_group(self.menu_accel)
         
         # --- "File" item
         self.menu1 = Gtk.Menu()
+        
         self.menuitem1_1 = Gtk.MenuItem.new_with_mnemonic("_New")
         self.menuitem1_1.connect("activate", lambda a: self.open_new_window())
+        self.menuitem1_1.add_accelerator("activate",
+                                         self.menu_accel,
+                                         Gdk.keyval_from_name("N"),
+                                         Gdk.ModifierType.CONTROL_MASK,
+                                         Gtk.AccelFlags.VISIBLE)
         self.menu1.add(self.menuitem1_1)
         
         self.menuitem1_2 = Gtk.MenuItem.new_with_mnemonic("_Open")
         self.menuitem1_2.connect("activate", lambda a: self.open_file())
+        self.menuitem1_2.add_accelerator("activate",
+                                         self.menu_accel,
+                                         Gdk.keyval_from_name("O"),
+                                         Gdk.ModifierType.CONTROL_MASK,
+                                         Gtk.AccelFlags.VISIBLE)
         self.menu1.add(self.menuitem1_2)
         
         self.menuitem1_3 = Gtk.MenuItem.new_with_mnemonic("_Save")
         self.menuitem1_3.connect("activate", lambda a: self.save_file(False))
+        self.menuitem1_3.add_accelerator("activate",
+                                         self.menu_accel,
+                                         Gdk.keyval_from_name("S"),
+                                         Gdk.ModifierType.CONTROL_MASK,
+                                         Gtk.AccelFlags.VISIBLE)
         self.menu1.add(self.menuitem1_3)
         
         self.menuitem1_4 = Gtk.MenuItem.new_with_mnemonic("Save _As")
         self.menuitem1_4.connect("activate", lambda a: self.save_file(True))
+        self.menuitem1_4.add_accelerator("activate",
+                         self.menu_accel,
+                         Gdk.keyval_from_name("S"),
+                         (Gdk.ModifierType.CONTROL_MASK|Gdk.ModifierType.SHIFT_MASK),
+                         Gtk.AccelFlags.VISIBLE)
         self.menu1.add(self.menuitem1_4)
         
         self.menuitem1_5 = Gtk.MenuItem.new_with_mnemonic("_Quit")
         self.menuitem1_5.connect("activate", lambda a: self.exit_window())
+        self.menuitem1_5.add_accelerator("activate",
+                                 self.menu_accel,
+                                 Gdk.keyval_from_name("W"),
+                                 Gdk.ModifierType.CONTROL_MASK,
+                                 Gtk.AccelFlags.VISIBLE)
         self.menu1.add(self.menuitem1_5)
         
         self.menuitem1 = Gtk.MenuItem.new_with_mnemonic("_File")
@@ -106,10 +134,23 @@ class MyWindow(Gtk.Window):
         
         # --- "Edit" item
         self.menu2 = Gtk.Menu()
+        
         self.menuitem2_1 = Gtk.MenuItem.new_with_mnemonic("_Undo")
+        self.menuitem2_1.add_accelerator("activate",
+                                 self.menu_accel,
+                                 Gdk.keyval_from_name("Z"),
+                                 Gdk.ModifierType.CONTROL_MASK,
+                                 Gtk.AccelFlags.VISIBLE)
         self.menu2.add(self.menuitem2_1)
+        
         self.menuitem2_2 = Gtk.MenuItem.new_with_mnemonic("_Redo")
+        self.menuitem2_2.add_accelerator("activate",
+                 self.menu_accel,
+                 Gdk.keyval_from_name("Z"),
+                 (Gdk.ModifierType.CONTROL_MASK|Gdk.ModifierType.SHIFT_MASK),
+                 Gtk.AccelFlags.VISIBLE)
         self.menu2.add(self.menuitem2_2)
+        
         self.menuitem2_3 = Gtk.MenuItem.new_with_mnemonic("Pr_eferences")
         self.menu2.add(self.menuitem2_3)
         
