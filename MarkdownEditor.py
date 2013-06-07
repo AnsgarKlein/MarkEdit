@@ -344,6 +344,7 @@ class MyWindow(Gtk.Window):
         MyWindow()
     
     def exit_window(self):
+        self.hide()
         global N_OPEN_WINDOWS
         N_OPEN_WINDOWS = N_OPEN_WINDOWS-1
         
