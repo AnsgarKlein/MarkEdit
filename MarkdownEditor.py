@@ -61,7 +61,7 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="Markdown")
         self.connect("delete-event", lambda a, b: self.exit_window())
         self.connect("window-state-event", self.on_window_state_change)
-        self.set_default_size(900,750)
+        self.set_default_size(1000,750)
         
         #Set application icon
         try:
