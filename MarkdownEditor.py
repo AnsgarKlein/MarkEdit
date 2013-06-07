@@ -81,47 +81,47 @@ class MyWindow(Gtk.Window):
         
         # --- "File" item
         self.menu1 = Gtk.Menu()
-        self.menuitem1_1 = Gtk.MenuItem.new_with_label("New")
+        self.menuitem1_1 = Gtk.MenuItem.new_with_mnemonic("_New")
         self.menuitem1_1.connect("activate", lambda a: self.open_new_window())
         self.menu1.add(self.menuitem1_1)
         
-        self.menuitem1_2 = Gtk.MenuItem.new_with_label("Open")
+        self.menuitem1_2 = Gtk.MenuItem.new_with_mnemonic("_Open")
         self.menuitem1_2.connect("activate", lambda a: self.open_file())
         self.menu1.add(self.menuitem1_2)
         
-        self.menuitem1_3 = Gtk.MenuItem.new_with_label("Save")
+        self.menuitem1_3 = Gtk.MenuItem.new_with_mnemonic("_Save")
         self.menuitem1_3.connect("activate", lambda a: self.save_file(False))
         self.menu1.add(self.menuitem1_3)
         
-        self.menuitem1_4 = Gtk.MenuItem.new_with_label("Save As")
+        self.menuitem1_4 = Gtk.MenuItem.new_with_mnemonic("Save _As")
         self.menuitem1_4.connect("activate", lambda a: self.save_file(True))
         self.menu1.add(self.menuitem1_4)
         
-        self.menuitem1_5 = Gtk.MenuItem.new_with_label("Quit")
+        self.menuitem1_5 = Gtk.MenuItem.new_with_mnemonic("_Quit")
         self.menuitem1_5.connect("activate", lambda a: self.exit_window())
         self.menu1.add(self.menuitem1_5)
         
-        self.menuitem1 = Gtk.MenuItem.new_with_label("File")
+        self.menuitem1 = Gtk.MenuItem.new_with_mnemonic("_File")
         self.menuitem1.set_submenu(self.menu1)
         
         # --- "Edit" item
         self.menu2 = Gtk.Menu()
-        self.menuitem2_1 = Gtk.MenuItem.new_with_label("Undo")
+        self.menuitem2_1 = Gtk.MenuItem.new_with_mnemonic("_Undo")
         self.menu2.add(self.menuitem2_1)
-        self.menuitem2_2 = Gtk.MenuItem.new_with_label("Redo")
+        self.menuitem2_2 = Gtk.MenuItem.new_with_mnemonic("_Redo")
         self.menu2.add(self.menuitem2_2)
-        self.menuitem2_3 = Gtk.MenuItem.new_with_label("Preferences")
+        self.menuitem2_3 = Gtk.MenuItem.new_with_mnemonic("Pr_eferences")
         self.menu2.add(self.menuitem2_3)
         
-        self.menuitem2 = Gtk.MenuItem.new_with_label("Edit")
+        self.menuitem2 = Gtk.MenuItem.new_with_mnemonic("_Edit")
         self.menuitem2.set_submenu(self.menu2)
         
         # --- "Help" item
         self.menu3 = Gtk.Menu()
-        self.menuitem3_1 = Gtk.MenuItem.new_with_label("Info")
+        self.menuitem3_1 = Gtk.MenuItem.new_with_mnemonic("_About")
         self.menu3.add(self.menuitem3_1)
         
-        self.menuitem3 = Gtk.MenuItem.new_with_label("Help")
+        self.menuitem3 = Gtk.MenuItem.new_with_mnemonic("_Help")
         self.menuitem3.set_submenu(self.menu3)
         
         self.menubar = Gtk.MenuBar()
