@@ -228,6 +228,7 @@ class MyWindow(Gtk.Window):
         
         self.html_switcher.show_all()
         self.html_switcher.set_current_page(1)
+        self.md_text.grab_focus()
         
     
     def md_text_changed(self, md_buffer):
