@@ -1,5 +1,18 @@
 #!/usr/bin/env python2
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 print "Trying to import markdown ...",
 try:
     import markdown
@@ -158,6 +171,7 @@ class MyWindow(Gtk.Window):
         # --- "Help" item
         self.menu3 = Gtk.Menu()
         self.menuitem3_1 = Gtk.MenuItem.new_with_mnemonic("_About")
+        self.menuitem3_1.connect("activate", lambda a: self.show_about_dialog())
         self.menu3.add(self.menuitem3_1)
         
         self.menuitem3 = Gtk.MenuItem.new_with_mnemonic("_Help")
@@ -305,6 +319,20 @@ class MyWindow(Gtk.Window):
         else:
             self.fullscreen()
             pass
+    
+    def show_about_dialog(self):
+        about_dialog = Gtk.AboutDialog()
+        about_dialog.set_destroy_with_parent(True)
+        about_dialog.set_transient_for(self)
+        about_dialog.set_modal(True)
+        
+        about_dialog.set_program_name("Markdown Editor")
+        about_dialog.set_logo_icon_name("text-editor")
+        about_dialog.set_comments("A simple native Markdown Editor.")
+        about_dialog.set_license_type(Gtk.License.GPL_3_0)
+        
+        about_dialog.run()
+        about_dialog.destroy()
     
     def open_file(self):
         dialog = Gtk.FileChooserDialog("Open", self,
