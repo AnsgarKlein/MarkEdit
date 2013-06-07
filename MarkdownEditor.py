@@ -30,10 +30,7 @@ try:
     print "\tDONE"
 except:
     print "\tERROR"
-    print "Starting without Gtk.SourceView, advanced features will not be available."
-    print "Install gtksourceview 3, its gir bindings and the language specific files for"
-    print "html and markdown to enable syntax highlighting."
-    WITH_SOURCEVIEW = False
+    sys.exit(1)
 
 print "Trying to import WebKit from gi.repository ...",
 try:
@@ -43,7 +40,6 @@ except:
     print "\t\tERROR"
     sys.exit(1)
 
-WITH_SOURCEVIEW = True
 N_OPEN_WINDOWS = 0
 
 class MyWindow(Gtk.Window):
@@ -136,6 +132,7 @@ class MyWindow(Gtk.Window):
         self.menu2 = Gtk.Menu()
         
         self.menuitem2_1 = Gtk.MenuItem.new_with_mnemonic("_Undo")
+        self.menuitem2_1.connect("activate", lambda a: self.undo())
         self.menuitem2_1.add_accelerator("activate",
                                  self.menu_accel,
                                  Gdk.keyval_from_name("Z"),
@@ -144,6 +141,7 @@ class MyWindow(Gtk.Window):
         self.menu2.add(self.menuitem2_1)
         
         self.menuitem2_2 = Gtk.MenuItem.new_with_mnemonic("_Redo")
+        self.menuitem2_2.connect("activate", lambda a: self.redo())
         self.menuitem2_2.add_accelerator("activate",
                  self.menu_accel,
                  Gdk.keyval_from_name("Z"),
@@ -196,9 +194,13 @@ class MyWindow(Gtk.Window):
         self.toolbar.add(Gtk.SeparatorToolItem())
         
         self.undo_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_UNDO)
+        self.undo_button.set_sensitive(False)
+        self.undo_button.connect("clicked", lambda a: self.undo())
         self.toolbar.add(self.undo_button)
         
         self.redo_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REDO)
+        self.redo_button.set_sensitive(False)
+        self.redo_button.connect("clicked", lambda a: self.redo())
         self.toolbar.add(self.redo_button)
         
         self.toolbar.add(Gtk.SeparatorToolItem())
@@ -225,12 +227,14 @@ class MyWindow(Gtk.Window):
         self.main_box.add(self.text_box)
         
         #Create markdown text view
-        if WITH_SOURCEVIEW:
-            self.md_text_language = GtkSource.LanguageManager.get_default().get_language("markdown")
-            self.md_text_buffer = GtkSource.Buffer.new_with_language(self.md_text_language)
-            self.md_text = GtkSource.View.new_with_buffer(self.md_text_buffer)
-        else:
-            self.md_text = Gtk.TextView()
+        self.md_text_language = GtkSource.LanguageManager.get_default().get_language("markdown")
+        self.md_text_buffer = GtkSource.Buffer.new_with_language(self.md_text_language)
+        self.md_text_undoer = self.md_text_buffer.get_undo_manager()
+        self.md_text_undoer.connect("can_redo_changed",
+                                    lambda a: self.on_can_undoredo_changed())
+        self.md_text_undoer.connect("can_undo_changed",
+                                    lambda a: self.on_can_undoredo_changed())
+        self.md_text = GtkSource.View.new_with_buffer(self.md_text_buffer)
         self.md_text.set_hexpand(True)
         self.md_text.set_vexpand(True)
         self.md_text.set_editable(True)
@@ -245,12 +249,9 @@ class MyWindow(Gtk.Window):
         self.text_box.pack_start(self.html_switcher, True, True, 0)
         
         #Create html text view
-        if WITH_SOURCEVIEW:
-            self.html_text_language = GtkSource.LanguageManager.get_default().get_language("html")
-            self.html_text_buffer = GtkSource.Buffer.new_with_language(self.html_text_language)
-            self.html_text = GtkSource.View.new_with_buffer(self.html_text_buffer)
-        else:
-            self.html_text = Gtk.TextView()
+        self.html_text_language = GtkSource.LanguageManager.get_default().get_language("html")
+        self.html_text_buffer = GtkSource.Buffer.new_with_language(self.html_text_language)
+        self.html_text = GtkSource.View.new_with_buffer(self.html_text_buffer)
         self.html_text.set_hexpand(True)
         self.html_text.set_vexpand(True)
         self.html_text.set_editable(False)
@@ -279,6 +280,18 @@ class MyWindow(Gtk.Window):
         
         self.html_text.get_buffer().set_text(html_text)
         self.html_view.load_html_string(html_text, "")
+    
+    def on_can_undoredo_changed(self):
+        self.undo_button.set_sensitive(self.md_text_undoer.can_undo())
+        self.redo_button.set_sensitive(self.md_text_undoer.can_redo())
+    
+    def undo(self):
+        if self.md_text_undoer.can_undo():
+            self.md_text_undoer.undo()
+    
+    def redo(self):
+        if self.md_text_undoer.can_redo():
+            self.md_text_undoer.redo()
     
     def on_window_state_change(self, window, event):
         if bool(Gdk.WindowState.FULLSCREEN & event.new_window_state):
