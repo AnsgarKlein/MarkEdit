@@ -52,6 +52,7 @@ class MyWindow(Gtk.Window):
         N_OPEN_WINDOWS = N_OPEN_WINDOWS+1
         
         self.is_fullscreen = False
+        self.file_path = None
         
         self.build_gui()
         self.show_all()
@@ -83,12 +84,19 @@ class MyWindow(Gtk.Window):
         self.menuitem1_1 = Gtk.MenuItem.new_with_label("New")
         self.menuitem1_1.connect("activate", lambda a: self.open_new_window())
         self.menu1.add(self.menuitem1_1)
+        
         self.menuitem1_2 = Gtk.MenuItem.new_with_label("Open")
+        self.menuitem1_2.connect("activate", lambda a: self.open_file())
         self.menu1.add(self.menuitem1_2)
+        
         self.menuitem1_3 = Gtk.MenuItem.new_with_label("Save")
+        self.menuitem1_3.connect("activate", lambda a: self.save_file(False))
         self.menu1.add(self.menuitem1_3)
+        
         self.menuitem1_4 = Gtk.MenuItem.new_with_label("Save As")
+        self.menuitem1_4.connect("activate", lambda a: self.save_file(True))
         self.menu1.add(self.menuitem1_4)
+        
         self.menuitem1_5 = Gtk.MenuItem.new_with_label("Quit")
         self.menuitem1_5.connect("activate", lambda a: self.exit_window())
         self.menu1.add(self.menuitem1_5)
@@ -132,9 +140,11 @@ class MyWindow(Gtk.Window):
         self.toolbar.add(self.new_button)
         
         self.open_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_OPEN)
+        self.open_button.connect("clicked", lambda a: self.open_file())
         self.toolbar.add(self.open_button)
         
         self.save_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_SAVE)
+        self.save_button.connect("clicked", lambda a: self.save_file(False))
         self.toolbar.add(self.save_button)
         
         self.toolbar.add(Gtk.SeparatorToolItem())
@@ -240,6 +250,53 @@ class MyWindow(Gtk.Window):
         else:
             self.fullscreen()
             pass
+    
+    def open_file(self):
+        dialog = Gtk.FileChooserDialog("Open", self,
+                                       Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL,
+                                       Gtk.ResponseType.CANCEL,
+                                       Gtk.STOCK_OPEN,
+                                       Gtk.ResponseType.ACCEPT))
+        
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
+            self.file_path = dialog.get_filename()
+            selected_file = open(self.file_path, "r")
+            self.md_text_buffer.set_text(selected_file.read())
+            selected_file.close()
+        
+        dialog.destroy()
+    
+    def save_file(self, save_as):
+        md_text = self.md_text_buffer.get_text(
+                        self.md_text_buffer.get_start_iter(),
+                        self.md_text_buffer.get_end_iter(),
+                        False)
+        
+        #if the normal save button was pressed
+        #save the changes to the opened file
+        if save_as == False and self.file_path != None:
+            pass
+        else:
+            dialog = Gtk.FileChooserDialog("Save", self,
+                                           Gtk.FileChooserAction.SAVE,
+                                           (Gtk.STOCK_CANCEL,
+                                           Gtk.ResponseType.CANCEL,
+                                           Gtk.STOCK_SAVE,
+                                           Gtk.ResponseType.ACCEPT))
+            dialog.set_do_overwrite_confirmation(True)
+            
+            if dialog.run() == Gtk.ResponseType.ACCEPT:
+                self.file_path = dialog.get_filename()
+                dialog.destroy()
+            else:
+                dialog.destroy()
+                return
+        
+        #actually write the file
+        selected_file = open(self.file_path, "w")
+        selected_file.write(md_text)
+        selected_file.close()
     
     def open_new_window(self):
         MyWindow()
