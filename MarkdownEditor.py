@@ -67,7 +67,7 @@ class MyWindow(Gtk.Window):
         self.show_all()
         
     def build_gui(self):
-        Gtk.Window.__init__(self, title="Markdown")
+        Gtk.Window.__init__(self, title="MarkEdit")
         self.connect("delete-event", lambda a, b: self.exit_window())
         self.connect("window-state-event", self.on_window_state_change)
         self.set_default_size(1000,750)
@@ -320,7 +320,7 @@ class MyWindow(Gtk.Window):
         about_dialog.set_transient_for(self)
         about_dialog.set_modal(True)
         
-        about_dialog.set_program_name("Markdown Editor")
+        about_dialog.set_program_name("MarkEdit")
         about_dialog.set_logo_icon_name("text-editor")
         about_dialog.set_comments("A simple native Markdown Editor.")
         about_dialog.set_license_type(Gtk.License.GPL_3_0)
