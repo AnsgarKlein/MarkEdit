@@ -313,7 +313,6 @@ class MyWindow(Gtk.Window):
             self.unfullscreen()
         else:
             self.fullscreen()
-            pass
     
     def show_about_dialog(self):
         about_dialog = Gtk.AboutDialog()
