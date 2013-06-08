@@ -202,11 +202,6 @@ class MyWindow(Gtk.Window):
         
         self.toolbar.add(Gtk.SeparatorToolItem())
         
-        self.print_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_PRINT)
-        self.toolbar.add(self.print_button)
-        
-        self.toolbar.add(Gtk.SeparatorToolItem())
-        
         self.undo_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_UNDO)
         self.undo_button.set_sensitive(False)
         self.undo_button.connect("clicked", lambda a: self.undo())
